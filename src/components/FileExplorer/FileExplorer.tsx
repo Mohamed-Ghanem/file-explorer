@@ -12,6 +12,7 @@ interface FileExplorerProps {
 const FileExplorer: React.FC<FileExplorerProps> = ({ fileSystem }) => {
   const menuRef = useRef<HTMLDivElement>(null);
 
+  const [selectedFile, setSelectedFile] = useState(null);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
     new Set()
   );
@@ -51,6 +52,15 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ fileSystem }) => {
       }
       return updated;
     });
+  };
+
+  const handleFileToggle = (file: FileType) => {
+    const key = getItemKey(file);
+    if (key === selectedFile) {
+      setSelectedFile(null);
+    } else {
+      setSelectedFile(key);
+    }
   };
 
   const handleRightClick = (e: React.MouseEvent, item: FileType | Folder) => {
@@ -129,7 +139,10 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ fileSystem }) => {
         <div
           key={getItemKey(item)}
           onContextMenu={(e) => handleRightClick(e, item)}
-          className="file"
+          onClick={() => handleFileToggle(item)}
+          className={
+            selectedFile === getItemKey(item) ? "file selected" : "file"
+          }
         >
           <span className="icon">{getFileIcon(item.meta)}</span>
           <span style={{ marginLeft: "5px" }}>{item.name}</span>
@@ -158,7 +171,7 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ fileSystem }) => {
   };
 
   return (
-    <div>
+    <div className="file-explorer">
       {fileSystem && <div>{renderItem(fileSystem)}</div>}
 
       {contextMenu.visible && (
